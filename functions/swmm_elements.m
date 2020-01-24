@@ -1,4 +1,4 @@
-function elmnt_values = swmm_elements(ffile_swmm, elmnt_classes, elmnt_attributes, elmnt_ids, elmnt_values_new)%elements, readwrite)
+function elmnt_values = swmm_elements(ffile_swmm, elmnt_classes, elmnt_attributes, elmnt_names, elmnt_values_new)%elements, readwrite)
 % get all the values corresponding to a specific swmm class
 % return a table containing element IDs as rows and attributes as columns
 % sample input data are as follows:
@@ -27,7 +27,7 @@ if overwrite_values
     clear content_cell
 end
 
-are_inputs_cells = isa(elmnt_classes,'cell') && isa(elmnt_attributes,'cell') && isa(elmnt_ids,'cell');
+are_inputs_cells = isa(elmnt_classes,'cell') && isa(elmnt_attributes,'cell') && isa(elmnt_names,'cell');
 if ~are_inputs_cells
     error('element tripled not formatted correctly, should be cell arrays of equal size with class, attribute, and id')
 end
@@ -53,7 +53,7 @@ for j1 = 1:num_elements
     
     elmnt_class = elmnt_classes{j1};
     elmnt_attribute = elmnt_attributes{j1};
-    elmnt_id = elmnt_ids{j1};
+    elmnt_name = elmnt_names{j1};
     
     % grab the indexes SWMM data tables
     if iscell(class_tables)
@@ -63,7 +63,13 @@ for j1 = 1:num_elements
         class_data = class_tables;
     end
     
-    idx_elmnt = strcmp(class_data.Name,elmnt_id);
+
+    idx_elmnt = strcmp(class_data.Name,elmnt_name);
+
+    
+    
+    
+    
     line_elmnt = class_data(idx_elmnt,:).line_num;
 %     line_element = class_data(elmnt_id,:).line_num;
     ldx_attribute = contains(class_data.Properties.VariableNames,elmnt_attribute);
@@ -96,7 +102,12 @@ for j1 = 1:num_elements
         
         %%
         elmnt_value_new = elmnt_values_new(j1);
+        
         elmnt_value_new = round(elmnt_value_new,4,'significant');
+        if elmnt_value_new < 0.001
+            elmnt_value_new = round(elmnt_value_new,6,'decimal');
+        end
+        
         val_str_new = num2str(elmnt_value_new);
         
         

@@ -10,14 +10,14 @@ if ~contains(ffile_parent,'.inp')
     ffile_parent = [ffile_parent,'.inp'];
 end
 
+name_child = [name_parent,'_','edited'];
+    
 if nargin < 2
-    folder_child = [path_parent,name_child];
+    folder_child = [path_parent,name_child,'\'];
     mkdir(folder_child);
 end
 
-name_child = [name_parent,'_','editing'];
-ffile_child = [folder_child,'\',name_child];
-
+ffile_child = [folder_child,name_child];
 
 if 2 == exist(ffile_parent,'file')
     if 2 == exist([ffile_child,'.inp'],'file')

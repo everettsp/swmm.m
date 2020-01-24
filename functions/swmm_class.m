@@ -47,14 +47,13 @@ if ~iscell(classnames)
     classnames = {classnames};
 end
 
-% forgot why I was filtering for unique classnames only
-% unique_classnames = unique(classnames);
+classnames_unique = unique(classnames);
 
-num_classes = numel(classnames);
+num_classes = numel(classnames_unique);
 data_tables = cell(num_classes,1);
 
-for i5 = 1:numel(classnames)
-    classname = classnames{i5};
+for i5 = 1:numel(classnames_unique)
+    classname = classnames_unique{i5};
     % exception for polygons, since not upper case for some reason
     
     % if type names don't have brackets, add brackets
@@ -197,6 +196,13 @@ for i5 = 1:numel(classnames)
     
     % add the line of the .INP file that the element appears on
     data_table(table_ids, {'line_num'}) = table(lines_section');
+    
+    data_table.Properties.Description = classname;
+    
+    
+    if strcmp(data_table.Properties.Description,'[INFILTRATION]') || strcmp(data_table.Properties.Description,'[SUBAREAS]')
+        data_table.Name = data_table.Subcatchment;
+    end
     
     data_tables{i5} = data_table;
 end
