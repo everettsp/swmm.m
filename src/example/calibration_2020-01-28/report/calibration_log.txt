@@ -1,6 +1,0 @@
-28-Jan-2020 14:36:21		begining swmm calibration
-28-Jan-2020 14:36:21		reading simulation options; options (END_DATEEND_TIMEREPORT_START_DATEREPORT_START_TIMESTART_DATESTART_TIME) modified successfully...
-28-Jan-2020 14:36:21		executing pre-calibration simulaiton
-28-Jan-2020 14:36:21		completed class read
-28-Jan-2020 14:36:47		Calibration completed successfully
-28-Jan-2020 14:36:47		Selecting model with highest NSE (NaN)...

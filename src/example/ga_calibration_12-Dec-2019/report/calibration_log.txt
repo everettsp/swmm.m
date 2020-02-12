@@ -1,3 +1,0 @@
-12-Dec-2019 11:25:41		begining swmm calibration
-12-Dec-2019 11:25:41		executing pre-calibration simulaiton
-12-Dec-2019 11:25:41		completed class read

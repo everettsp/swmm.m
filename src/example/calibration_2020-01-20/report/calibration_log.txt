@@ -1,4 +1,0 @@
-20-Jan-2020 15:11:19		begining swmm calibration
-20-Jan-2020 15:11:19		executing pre-calibration simulaiton
-20-Jan-2020 15:11:20		completed class read
-20-Jan-2020 15:12:27		Calibration completed successfully
