@@ -1,0 +1,380 @@
+function fh = apply_resize(fig_wdt,fig_hgt,marg_lft,marg_rgt,marg_dwn,marg_up,varargin)
+% this function resizes figures, fixes the margins, and adds space for a
+% blank space for objects such as legends
+% all length values are in [cm] so as to fascilitate matching document
+% processing page layout margins
+
+% fig_wdt / fig_hgt are the outermost extents of the figure
+% marg_ are the four margins around each plot, required for tick and axes labels
+% uniform margins are applied to all subplots
+% right, left, bottom, top [length]: adds blank space to the respective side of the figure
+% legend [binary]: display legend
+% leg_placement [bottom-mid, northeast, etc.]: options are specified by cases in script
+%
+% notes: it's a lot easier having the legend placement in this script, since it
+% can be placed at the midpoint of the blank space parameter above, this
+% midpoint value is not easy to automatically determine for figures without
+% subplots... (legacy fix_legend() script is no longer used)
+
+par = inputParser;
+addParameter(par,'right',0)
+addParameter(par,'left',0)
+addParameter(par,'bottom',0)
+addParameter(par,'top',0)
+addParameter(par,'leg',false)
+addParameter(par,'leg_placement','bottom-mid')
+addParameter(par,'ylabel',false)
+addParameter(par,'xlabel',false)
+addParameter(par,'case','unchanged')
+addParameter(par,'abbrev',false)
+addParameter(par,'font_name','Arial')
+addParameter(par,'font_size',12)
+
+
+
+
+
+
+
+parse(par,varargin{:})
+
+right = par.Results.right;
+left = par.Results.left;
+bottom = par.Results.bottom;
+top = par.Results.top;
+fix_leg = par.Results.leg;
+leg_placement = par.Results.leg_placement;
+fix_ylabel = par.Results.ylabel;
+fix_xlabel = par.Results.xlabel;
+font_abbrev = par.Results.abbrev;
+font_case = par.Results.case;
+font_name = par.Results.font_name;
+font_size = par.Results.font_size;
+
+
+fh = gcf;
+
+set(fh, 'Color', 'w');
+set(fh,'Units','Centimeters');
+set(fh,'PaperUnits','Centimeters');
+set(fh,'Position',[3 3 fig_wdt fig_hgt]);
+set(fh,'PaperSize',[fig_wdt fig_hgt]);
+
+%% get the number of axes handles, then find the subfigure positions
+%the following uses an automated approach to finding axes positions, since
+%children are listed inversely to the order they are plotted.
+% this approach should work if axes are not plotted Top-left->right-down,
+% however ONLY works if axes are plotted in a grid, does not handle cases
+% such as subplot(2,2,1.5)
+
+ahs = findall(fh,'type','axes'); %axes handles
+num_axes = size(ahs,1); %number of axis handles
+pos_axes = zeros(num_axes,2); %subfigure positions [x,y]
+
+for ii = 1:num_axes
+    ahs(ii).Units = 'centimeters';
+    pos_axes(ii,:) = ahs(ii).Position(1:2);
+end
+
+pos_axes = round(pos_axes * 5)/5; %round to nearest 0.2, since axes are not always nicely alligned...
+
+[~,ind] = sortrows(pos_axes,[2 1],'ascend'); %order from L->R then D->U
+ahs = ahs(ind); %reorder axes
+
+num_rows = numel(uniquetol(pos_axes(:,2),.15));
+num_cols = numel(uniquetol(pos_axes(:,1),.15));
+
+%% calculate uniform dimensions for the axes
+ax_hgt = fig_hgt - bottom - top;
+ax_wdt = fig_wdt - right - left;
+
+box_hgt = ax_hgt/num_rows - marg_up - marg_dwn;
+box_wdt = ax_wdt/num_cols - marg_lft - marg_rgt;
+
+if box_hgt < 0
+    error('calculated subplot height is too small, consider englarigng the figure')
+end
+
+if box_wdt < 0
+    error('calculated subplot width is too small, consider englarigng the figure')
+end
+
+
+%% reposition the axis
+n = 1;
+for ii = 1:num_rows
+    for iii = 1:num_cols
+        set(ahs(n),'Units','Centimeters');
+        set(ahs(n),'Position',...
+            [left + marg_lft + ax_wdt*(iii-1)/num_cols,...
+            bottom + marg_dwn + ax_hgt*(ii-1)/num_rows,...
+            box_wdt,...
+            box_hgt])
+        %         xticklabels('auto')
+        %         yticklabels('auto')
+        n = n+1;
+    end
+end
+
+%% add legend (not 100% tested yet, fix cases as req)
+if fix_leg
+    delete(findall(fh,'type','Legend'));
+    lh_cf = legend;
+    lh_cf.Units = 'centimeters';
+    lh_cf.Interpreter = 'none';
+    
+    switch lower(leg_placement)
+        case {'bottom-mid','bottom-right','bottom-left','bm','br','bl'}
+            lh_cf.NumColumns = numel(lh_cf.String);
+            
+            while lh.Position(3) > fig_wdt
+                lh.NumColumns = ceil(lh.NumColumns/2);
+            end
+        case {'top-mid','top-right','top-left','tm','tr','tl'}
+            lh.NumColumns = numel(lh.String);
+            
+            while lh.Position(3) > fig_wdt
+                lh.NumColumns = lh.NumColumns/2;
+            end
+        case {'right-mid','right-top','right-bottom','rm','rt','rb'}
+            lh.NumColumns = 1;
+            
+        case {'left-mid','left-top','left-bottom','lm','lt','lb'}
+            lh.NumColumns = 1;
+    end
+    
+    lW = lh.Position(3);
+    lH = lh.Position(4);
+    
+    switch lower(leg_placement)
+        case {'bottom-mid','bm'}
+            lX = fig_wdt/2 - lW/2;
+            %             lY = bottom/2 - lH/2;
+            lY = 0.2;
+        case {'bottom-right','br'}
+            lX = fig_wdt - right - marg_rgt - lW;
+            lY = bottom/2 - lH/2;
+            
+        case {'bottom-left','bl'}
+            lX = left + marg_lft;
+            lY = bottom/2 - lH/2;
+            
+        case {'top-mid','tm'}
+            lX = fig_wdt/2 - lW/2;
+            lY = fig_hgt - top/2 - lH/2;
+            
+        case {'top-right','tr'}
+            lX = fig_wdt - right - marg_rgt - lW;
+            lY = fig_hgt - top/2 - lH/2;
+            
+        case {'top-left','tl'}
+            lX = left + marg_lft;
+            lY = fig_hgt - top/2 - lH/2;
+            
+        case {'right-mid','rm'}
+            lX = fig_wdt - right/2 - lW/2;
+            lY = fig_hgt/2 - lH/2;
+            
+        case {'right-top','rt'}
+            lX = fig_wdt - right/2 - lW/2;
+            lY = fig_hgt - top - marg_up - lH;
+            
+        case {'right-bottom','rb'}
+            lX = fig_wdt - right/2 - lW/2;
+            lY = bottom + marg_dwn;
+            
+        case {'left-mid','lm'}
+            lX = left/2 + lW/2;
+            lY = fH/2 - lH/2;
+            
+        case {'left-top','lt'}
+            lX = left/2 + lW/2;
+            lY = fig_hgt - top - marg_up - lH;
+            
+        case {'left-bottom','lb'}
+            lX = left/2 + lW/2;
+            lY = bottom + marg_dwn;
+        case {'best'}
+            legend('location','best')
+            lX = lh.Position(1);
+            lY = lh.Position(2);
+        otherwise
+            %             error(['legend placement ' leg_placement ' not recognized'])
+    end
+    
+    
+    if any(contains({'northwest','nw','northeast','ne','southeast','se','southwest','sw','best'},leg_placement))
+        legend('location',leg_placement)
+    else
+        %         lY = lY - 0.5 * lH;
+        set(lh,'position',[lX lY lW lH])
+    end
+    
+    set(lh,'box','on')
+end
+
+if ischar(fix_ylabel)
+    
+    set(fh,'CurrentAxes',ahs(1))
+    ah = gca;
+    delete(ah.YLabel);
+    ah.YLabel.String = fix_ylabel;
+    ah.YLabel.VerticalAlignment = 'middle';
+    ah.YLabel.Units = 'centimeters';
+    ylabel_pos = ah.YLabel.Position;
+    ylabel_hgt = (fig_hgt - top - ah.Position(2))/2;
+    
+    ylabel_xadjust = 0.25;
+    ah.YLabel.Position = ...
+        [ylabel_pos(1) - ylabel_xadjust,....
+        ylabel_hgt,...
+        ylabel_pos(3)];
+end
+
+if ischar(fix_xlabel)
+    set(fh,'CurrentAxes',ahs(1))
+    ah = gca;
+    delete(ah.XLabel);
+    ah.XLabel.String = fix_xlabel;
+    ah.XLabel.HorizontalAlignment = 'center';
+    ah.XLabel.Units = 'centimeters';
+    xlabel_pos = ah.XLabel.Position;
+    xlabel_wdt = (fig_wdt - left - right)/2 - ah.Position(1) + left;
+    xlabel_yadjust = 0;
+    
+    ah.XLabel.Position = ...
+        [xlabel_wdt,...
+        xlabel_pos(2) - xlabel_yadjust,....
+        xlabel_pos(3)];
+    
+end
+
+
+
+
+
+
+
+
+
+
+
+if iscell(font_abbrev) && size(font_abbrev,2) ~= 2
+    error('font abbrev input incorrect: should have two columns for abbreviation combinations')
+end
+
+%% grab figure handle
+% set the font size and name for the entire figure
+fh = gcf;
+
+set(findall(fh,'-property','FontSize'),'FontSize',font_size);
+set(findall(fh,'-property','FontName'),'FontName',font_name);
+
+%%
+%
+
+switch lower(font_case)
+    case {'lower','low'}
+        fun_font = @(x) lower(x);
+    case {'upper','up'}
+        fun_font = @(x) upper(x);
+    otherwise
+        %do nothing
+        fun_font = @(x) x;
+end
+cycle_figstr(fh,fun_font)
+
+
+if iscell(font_abbrev)
+    fun_abbrev = @(str_long) abbrev(str_long,font_abbrev(:,1),font_abbrev(:,2));
+    cycle_figstr(fh,fun_abbrev)
+end
+
+
+function cycle_figstr(fh,fun)
+    % this function will iteratively select each string element
+    % contained within a figure and pass it through the function 'fun'
+
+
+    fh.Name = fun(fh.Name);
+
+    %% legend
+    lh_cf = findobj(fh, 'Type', 'Legend');
+    for ii = 1:numel(lh_cf)
+        for iii = 1:numel(lh_cf(ii).String)
+            lh_cf(ii).String{iii} = fun(lh_cf(ii).String{iii});
+        end
+    end
+
+    %% apply string function to each of the string objects associated with axes
+    ah = findobj(fh, 'Type', 'Axes');
+    for ii = 1:numel(ah)
+        ah(ii).Title.String = fun(ah(ii).Title.String);
+        ah(ii).XLabel.String = fun(ah(ii).XLabel.String);
+
+        if ischar(ah(ii).XTickLabel)
+            ah(ii).XTickLabel = {ah(ii).XTickLabel};
+        end
+
+        if ~isempty(ah(ii).XTickLabel)
+            if isempty(str2double(ah(ii).XTickLabel{1}))
+                for iii = 1:size(ah(ii).XTickLabel,1)
+                    ah(ii).XTickLabel(iii,:) = fun(ah(ii).XTickLabel(iii,:));
+                end
+            end
+        end
+
+        % if the figure contains a right axis, apply function to right
+        % axis elements
+        % CAUTION: this will fail if the yyaxis right is not the most
+        % recent axes selected, I don't know a good way around this
+        % right now...
+        contains_yright = false;
+
+
+        if contains(ah(ii).YAxisLocation,'right')
+            contains_yright = true;
+            ah(ii).YLabel.String = fun(ah(ii).YLabel.String);
+            if ~isempty(ah(ii).YTickLabel)
+                if isempty(str2double(ah(ii).YTickLabel{1}))
+                    for iii = 1:size(ah(ii).YTickLabel,1)
+                        ah(ii).YTickLabel(iii,:) = fun(ah(ii).YTickLabel(iii,:));
+                    end
+                end
+            end
+            yyaxis left
+        end
+
+        ah(ii).YLabel.String = fun(ah(ii).YLabel.String);
+
+        if ischar(ah(ii).XTickLabel)
+            ah(ii).YTickLabel = {ah(ii).YTickLabel};
+        end
+
+        if ~isempty(ah(ii).YTickLabel)
+            if isempty(str2double(ah(ii).YTickLabel{1}))
+                for iii = 1:size(ah(ii).YTickLabel,1)
+                    ah(ii).YTickLabel(iii,:) = fun(ah(ii).YTickLabel(iii,:));
+                end
+            end
+        end
+        if contains_yright
+            yyaxis right
+        end
+
+    end
+
+    %% dataseries (not really important since changing legend values directly anyways)
+    ph = findobj(fh, 'Type', 'Line');
+    for ii = 1:numel(ph)
+        ph(ii).DisplayName = fun(ph(ii).DisplayName);
+    end
+end
+
+
+
+
+
+
+end
+

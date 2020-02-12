@@ -1,0 +1,13 @@
+% test_envelope
+
+n = 10;
+m = 100;
+x = 1:0.001:n;
+
+figure(1)
+hold 'on'
+eh = envelope(2).empty
+for i2 = 1:5
+    y1 = 100 .* sin(x + 10 * rand(1)) .* rand([m,1]) + 100 .* rand([m,1]) .^ rand(1);
+    eh(i2) = plot_envelope(y1,x);
+end

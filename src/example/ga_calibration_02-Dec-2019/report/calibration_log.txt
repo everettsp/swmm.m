@@ -1,0 +1,16 @@
+02-Dec-2019 16:58:09		begining swmm calibration
+02-Dec-2019 16:58:09		executing pre-calibration simulaiton
+02-Dec-2019 17:01:50		executing pre-calibration simulaiton
+02-Dec-2019 17:01:50		completed class read
+02-Dec-2019 17:01:50		ERROR: population size not detected...
+02-Dec-2019 17:03:15		begining swmm calibration
+02-Dec-2019 17:03:16		executing pre-calibration simulaiton
+02-Dec-2019 17:03:16		completed class read
+02-Dec-2019 17:03:16		ERROR: population size not detected...
+02-Dec-2019 17:06:10		completed class read
+02-Dec-2019 17:06:12		ERROR: population size not detected...
+02-Dec-2019 17:09:30		completed class read
+02-Dec-2019 17:09:36		begining swmm calibration
+02-Dec-2019 17:09:36		executing pre-calibration simulaiton
+02-Dec-2019 17:09:37		completed class read
+02-Dec-2019 17:09:41		ERROR: population size not detected...

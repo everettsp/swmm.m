@@ -1,0 +1,4 @@
+22-Jan-2020 16:06:38		begining swmm calibration
+22-Jan-2020 16:06:38		reading simulation options; options (END_DATEEND_TIMEREPORT_START_DATEREPORT_START_TIMESTART_DATESTART_TIME) modified successfully...
+22-Jan-2020 16:06:38		executing pre-calibration simulaiton
+22-Jan-2020 16:06:39		completed class read
