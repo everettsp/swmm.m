@@ -1,0 +1,192 @@
+
+  EPA STORM WATER MANAGEMENT MODEL - VERSION 5.1 (Build 5.1.013)
+  --------------------------------------------------------------
+
+  
+  *********************
+  Rainfall File Summary
+  *********************
+  Station    First        Last         Recording   Periods    Periods    Periods
+  ID         Date         Date         Frequency  w/Precip    Missing    Malfunc.
+  -------------------------------------------------------------------------------
+  rg_1       01/01/2000   01/02/2000      60 min       241          0          0
+
+  
+  *********************************************************
+  NOTE: The summary statistics displayed in this report are
+  based on results found at every computational time step,  
+  not just on results from each reporting time step.
+  *********************************************************
+  
+  ****************
+  Analysis Options
+  ****************
+  Flow Units ............... CMS
+  Process Models:
+    Rainfall/Runoff ........ YES
+    RDII ................... NO
+    Snowmelt ............... NO
+    Groundwater ............ NO
+    Flow Routing ........... YES
+    Ponding Allowed ........ NO
+    Water Quality .......... NO
+  Infiltration Method ...... MODIFIED_GREEN_AMPT
+  Flow Routing Method ...... KINWAVE
+  Starting Date ............ 01/01/2000 00:00:00
+  Ending Date .............. 01/02/2000 00:00:00
+  Antecedent Dry Days ...... 5.0
+  Report Time Step ......... 00:05:00
+  Wet Time Step ............ 00:15:00
+  Dry Time Step ............ 01:00:00
+  Routing Time Step ........ 60.00 sec
+  
+  
+  **************************        Volume         Depth
+  Runoff Quantity Continuity     hectare-m            mm
+  **************************     ---------       -------
+  Total Precipitation ......         0.119         9.888
+  Evaporation Loss .........         0.000         0.000
+  Infiltration Loss ........         0.058         4.849
+  Surface Runoff ...........         0.058         4.809
+  Final Storage ............         0.003         0.249
+  Continuity Error (%) .....        -0.194
+  
+  
+  **************************        Volume        Volume
+  Flow Routing Continuity        hectare-m      10^6 ltr
+  **************************     ---------     ---------
+  Dry Weather Inflow .......         0.000         0.000
+  Wet Weather Inflow .......         0.058         0.577
+  Groundwater Inflow .......         0.000         0.000
+  RDII Inflow ..............         0.000         0.000
+  External Inflow ..........         0.000         0.000
+  External Outflow .........         0.057         0.572
+  Flooding Loss ............         0.000         0.000
+  Evaporation Loss .........         0.000         0.000
+  Exfiltration Loss ........         0.000         0.000
+  Initial Stored Volume ....         0.000         0.000
+  Final Stored Volume ......         0.000         0.004
+  Continuity Error (%) .....         0.075
+  
+  
+  ********************************
+  Highest Flow Instability Indexes
+  ********************************
+  All links are stable.
+  
+  
+  *************************
+  Routing Time Step Summary
+  *************************
+  Minimum Time Step           :    60.00 sec
+  Average Time Step           :    60.00 sec
+  Maximum Time Step           :    60.00 sec
+  Percent in Steady State     :     0.00
+  Average Iterations per Step :     1.03
+  Percent Not Converging      :     0.00
+  
+  
+  ***************************
+  Subcatchment Runoff Summary
+  ***************************
+  
+  ------------------------------------------------------------------------------------------------------------------------------
+                            Total      Total      Total      Total     Imperv       Perv      Total       Total     Peak  Runoff
+                           Precip      Runon       Evap      Infil     Runoff     Runoff     Runoff      Runoff   Runoff   Coeff
+  Subcatchment                 mm         mm         mm         mm         mm         mm         mm    10^6 ltr      CMS
+  ------------------------------------------------------------------------------------------------------------------------------
+  S1                         9.89       0.00       0.00       4.94       4.89       0.00       4.89        0.20     0.06   0.495
+  S2                         9.89       0.00       0.00       8.90       0.99       0.00       0.99        0.04     0.01   0.100
+  S3                         9.89       0.00       0.00       0.70       8.76       0.29       8.55        0.34     0.10   0.865
+  
+
+  ***********************
+  LID Performance Summary
+  ***********************
+
+  --------------------------------------------------------------------------------------------------------------------
+                                         Total      Evap     Infil   Surface    Drain    Initial     Final  Continuity
+                                        Inflow      Loss      Loss   Outflow   Outflow   Storage   Storage       Error
+  Subcatchment      LID Control             mm        mm        mm        mm        mm        mm        mm           %
+  --------------------------------------------------------------------------------------------------------------------
+  S3                rb                 5263.71      0.00      0.00   4263.71      0.00      0.00   1000.00        0.00
+  
+  ******************
+  Node Depth Summary
+  ******************
+  
+  ---------------------------------------------------------------------------------
+                                 Average  Maximum  Maximum  Time of Max    Reported
+                                   Depth    Depth      HGL   Occurrence   Max Depth
+  Node                 Type       Meters   Meters   Meters  days hr:min      Meters
+  ---------------------------------------------------------------------------------
+  J3                   JUNCTION     0.02     0.10    93.10     0  13:00        0.10
+  J1                   JUNCTION     0.01     0.09    96.09     0  12:54        0.09
+  J4                   JUNCTION     0.02     0.14    88.14     0  13:01        0.14
+  J2                   JUNCTION     0.02     0.12    90.12     0  12:57        0.12
+  OUT1                 OUTFALL      0.02     0.14    85.14     0  13:04        0.14
+  
+  
+  *******************
+  Node Inflow Summary
+  *******************
+  
+  -------------------------------------------------------------------------------------------------
+                                  Maximum  Maximum                  Lateral       Total        Flow
+                                  Lateral    Total  Time of Max      Inflow      Inflow     Balance
+                                   Inflow   Inflow   Occurrence      Volume      Volume       Error
+  Node                 Type           CMS      CMS  days hr:min    10^6 ltr    10^6 ltr     Percent
+  -------------------------------------------------------------------------------------------------
+  J3                   JUNCTION     0.101    0.101     0  13:00       0.342       0.342       0.000
+  J1                   JUNCTION     0.060    0.060     0  12:54       0.196       0.196       0.000
+  J4                   JUNCTION     0.000    0.167     0  13:01           0       0.574       0.000
+  J2                   JUNCTION     0.015    0.070     0  12:57      0.0394       0.234       0.000
+  OUT1                 OUTFALL      0.000    0.165     0  13:04           0       0.572       0.000
+  
+  
+  *********************
+  Node Flooding Summary
+  *********************
+  
+  No nodes were flooded.
+  
+  
+  ***********************
+  Outfall Loading Summary
+  ***********************
+  
+  -----------------------------------------------------------
+                         Flow       Avg       Max       Total
+                         Freq      Flow      Flow      Volume
+  Outfall Node           Pcnt       CMS       CMS    10^6 ltr
+  -----------------------------------------------------------
+  OUT1                  90.56     0.007     0.165       0.572
+  -----------------------------------------------------------
+  System                90.56     0.007     0.165       0.572
+  
+  
+  ********************
+  Link Flow Summary
+  ********************
+  
+  -----------------------------------------------------------------------------
+                                 Maximum  Time of Max   Maximum    Max/    Max/
+                                  |Flow|   Occurrence   |Veloc|    Full    Full
+  Link                 Type          CMS  days hr:min     m/sec    Flow   Depth
+  -----------------------------------------------------------------------------
+  C3                   CONDUIT     0.101     0  13:01      1.92    0.01    0.07
+  C4                   CONDUIT     0.165     0  13:04      1.79    0.01    0.07
+  C2                   CONDUIT     0.068     0  13:02      1.37    0.03    0.12
+  C1                   CONDUIT     0.058     0  12:58      1.86    0.02    0.09
+  
+  
+  *************************
+  Conduit Surcharge Summary
+  *************************
+  
+  No conduits were surcharged.
+  
+
+  Analysis begun on:  Fri Jul 24 11:18:53 2020
+  Analysis ended on:  Fri Jul 24 11:18:53 2020
+  Total elapsed time: < 1 sec
