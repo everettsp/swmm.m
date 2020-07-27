@@ -104,7 +104,6 @@ for i2 = 1:height(class_table)
 %             y.([char(opt_name),'_TIME']).Format = 'HH:mm:ss';
         end
         
-        
         case {'lid_controls'}
             
             data_cell_subs = struct();

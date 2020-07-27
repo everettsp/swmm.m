@@ -1,4 +1,4 @@
-function obj = write_inp(obj)%elements, readwrite)
+function obj = write_inp(obj,ffilename)%elements, readwrite)
 % write a SWMM .inp file from data contained in obj.p
 % this function overwrites the .inp file situated in obj.inp
 % changes to obj.p made without calling this function will not be reflected
@@ -87,7 +87,7 @@ for i2 = 1:height(obj.class_info)
 end
 
 % write content to file
-fid = fopen(obj.inp,'w+');
+fid = fopen(ffilename,'w+');
 for i2 = 1:numel(new_content)
     fprintf(fid,'%s\n',new_content{i2});
 end

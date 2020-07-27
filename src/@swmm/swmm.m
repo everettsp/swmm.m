@@ -25,7 +25,7 @@ classdef swmm
             [model_loc,model_name,model_ext] = fileparts(ffilepath);
             assert(strcmp(model_ext,'.inp'),"model file path must have extension '.INP'");
             obj.dir_main = model_loc;
-            obj.read_only = true;
+            obj.read_only = false;
             obj.name = model_name;
             
             obj.debug_log = {};
@@ -43,8 +43,8 @@ classdef swmm
         obj = new_project(obj, path_copy, varargin);
         obj = new_copy(obj, path_copy, varargin);
         obj = read_inp(obj);
-        obj = write_inp(obj);
-        obj = runsim(obj);
+        obj = write_inp(obj,ffile_inp);
+        obj = runsim(obj,ffile_rpt);
         
         tt = results_tt(obj, queries);
         res = results_summary(obj);
