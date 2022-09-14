@@ -1,0 +1,268 @@
+function [tts,msg] = results_tt(obj,element_queries)
+% read timetables of SWMM simulation results
+% element_queries is cell array of subcatchment/link/node names
+% empty input query returns all timetables
+
+% 
+% par = inputParser;
+% addOptional(par,'element_queries',{},@iscell);
+% parse(par,varargin{:});
+% element_queries = par.Results.element_queries;
+
+% addRequired(obj_rpt
+
+
+
+% load results report
+fid = -1;
+while fid == -1;
+fid = fopen(obj.rpt);
+fid_counter = fid_counter + 1;
+end
+content_cell = textscan(fid,'%s','Delimiter',{'\n'});
+fclose(fid);
+
+content = content_cell{1};
+clear content_cell
+
+% check if the .rpt file contains an error code
+has_error = contains(content','ERROR');
+if any(has_error)
+    msg_cell = content(has_error);
+    msg = [msg_cell{:}];
+    error(msg);
+end
+
+% header_dict = struct();
+% header_dict.node = struct();
+% header_dict.node.headers = {'inflow','flooding','depth','head'};
+% header_dict.node.units = {'CMS','CMS','meters','meters'};
+% header_dict.subcatchment = struct();
+% header_dict.subcatchment.headers = {'precip','losses','runoff','snow_depth'};
+% header_dict.subcatchment.units = {'mm/hr','mm/hr','CMS','mmeters'};
+% header_dict.link = struct();
+% header_dict.link.headers = {'flow','velocity','depth','capacity_setting'};
+% header_dict.link.units = {'CMS','m/sec','meters',''};
+
+idx_empty = cellfun(@isempty,content);
+idx_timeseries_sections = contains(content,'<<< ');
+lines_timeseries_sections = find(idx_timeseries_sections);
+content_timeseries_sections = content(idx_timeseries_sections);
+num_sections = numel(content_timeseries_sections);
+cat_sections = cell(num_sections,1);
+name_sections = cell(num_sections,1);
+for i2 = 1:num_sections
+    timeseries_section_cells = textscan(content_timeseries_sections{i2},'<<< %s %s >>>');
+    cat_sections{i2} = timeseries_section_cells{1}{1};
+    name_sections{i2} = timeseries_section_cells{2}{1};
+end
+clear vars i2 timeseries_section_cells
+
+% element_queries = {'CJ4584.343','J1400.117'};
+
+if nargin < 2
+    element_queries = name_sections;
+%     warning(['No query provided, retrieving timetables for ',num2str(numel(name_sections)),' elements, it may take a while...'])
+end
+
+if ischar(element_queries)
+    element_queries = {element_queries};
+end
+
+idx_query = find(ismember(lower(name_sections),lower(element_queries)));
+
+lines_query = lines_timeseries_sections(idx_query); % line of query in main file
+
+assert(numel(element_queries) == numel(lines_query),'some queries failed')
+
+line_diff_matrix = find(idx_empty) - lines_timeseries_sections';
+line_diff_matrix(line_diff_matrix < 0) = NaN;
+min(line_diff_matrix,[],2);
+num_lines_sections = min(line_diff_matrix)';
+
+num_queries = numel(lines_query);
+
+if num_queries > 1
+    wb = waitbar(0,'loading swmm results...');
+end
+
+tts = cell(num_queries,1);
+
+for i2 = 1:num_queries
+    
+    % get the attribute headers and units for the element
+    % results headers aren't tab delimited, so splitting by => 2 spaces
+    % seems to work so far.
+    % remove bad characters.
+    % date time headers are inconsitently listed in the header and units
+    % line, so just check for these values and remove them.
+    
+    %TODO: could do this just once based on whether link, node, or
+    %subcatchment, but I don't think it will save much computational
+    %effort...
+    
+    attributes = strsplit(content{lines_query(i2) + 2},'  ');
+    attributes = attributes(~ismember(attributes,{'Date','Time'}));
+    attributes = lower(attributes);
+    attributes = replace(attributes,{'.','\','/'},'');
+    attributes = strtrim(attributes);
+    attributes = replace(attributes,' ','_');
+
+    
+    units = strsplit(content{lines_query(i2) + 3},'  ');
+    units = units(~cellfun(@isempty,units));
+    units = strtrim(units);
+    units = units(~ismember(units,{'Date','Time'}));
+    
+    num_attributes = numel(attributes);
+    
+    data_cat = char(lower(cat_sections(idx_query(i2))));
+    data_name = char(name_sections(idx_query(i2)));
+    if num_queries > 1
+        waitbar(i2./num_queries,wb,['building timetable for ',data_cat,' ',data_name,'...'])
+    end
+    num_section_lines = num_lines_sections(i2)-5;
+    data_datetime = NaT(num_section_lines,1);
+    
+    data_array = nan(num_section_lines,num_attributes);
+    
+    line_data_start = lines_query(i2) + 5;
+    line_data_end = line_data_start + num_lines_sections - 1;
+    
+    for i3 = 1:num_section_lines
+        line_current = line_data_start - 1 + i3;
+
+        data_singleline = textscan(content{line_current},['%{MM/dd/yyyy}D%{HH:mm:ss}D',repmat('%f',[1,num_attributes])]);
+        data_datetime(i3) = datestr(data_singleline{1} + timeofday(data_singleline{2}));
+        data_array(i3,:) = [data_singleline{2+(1:num_attributes)}];
+    end
+    
+    
+    tt = array2timetable(data_array,'rowTimes',data_datetime,...
+        'VariableNames',attributes);
+    tt.Properties.VariableUnits  = units;
+    tt.Properties.Description = [data_cat,' ',data_name];
+    
+    tts{i2} = tt;
+end
+
+if num_queries == 1
+    tts = tts{1};
+end
+
+if num_queries > 1
+    close(wb);
+end
+
+% 
+% 
+% content(line_query)
+% 
+% 
+% 
+% 
+% 
+% 
+% for i2 = 1:numel(name_classes)
+% 
+% %     element_name = element_list{i2};
+%     
+%     
+%     line_start = find(contains(content',[' ' element_name ' >>>']));
+%     if isempty(line_start)
+%         msg = ["couldn't find timeseries for element '",element_name,"'"];
+%         error(msg);
+%     end
+% 
+%     if isempty(line_start)
+%         error('cannot locate specific element in output file, check ID and ensure all values are being reported in EPASWMM')
+%     end
+%     
+%     trim_datetime = @(x) contains(lower(x),'date') + contains(lower(x),'time') + cellfun(@isempty,x);
+% 
+%     
+%     
+%     
+%     headers_str = content{line_start + 2};
+%     headers = strsplit(headers_str,'  ');
+%     headers_remove = trim_datetime(headers);
+%     num_variables = sum(~headers_remove); % first two headers are for 'Date' and 'Time'
+%     clear headers_str
+%     
+%     
+%     
+%     units_str = content{line_start+3};
+%     units = strsplit(units_str);
+%     units_remove = trim_datetime(units);
+%     clear units_str
+%     
+%     line_cycle = line_start + 5; % data setarts 5 rows from header, start cycling there
+%     
+%     date_array = {};
+%     variable_array = [];
+%     
+%     while ~isempty(content{line_cycle})
+%         index = line_cycle - line_start - 5 + 1; % tare line_cycle such that it is indexed 1,2,3,...
+%         
+%         values = strsplit(content{line_cycle});
+%         
+%         % can't initialize these since number of timesteps is not known
+%         date_array{index,1} = char(join([values{1}," ",values{2}]));
+%         variable_array(index,:) = str2double(values(3:end));
+%         
+%         line_cycle = line_cycle + 1;
+%     end
+%     
+%     tt = timetable();
+%     tt.Properties.Description = element_name;
+%     
+%     for i1 = 1:num_variables
+%         
+%         % add variables to timetable (UGLY -> it won't let me make a timetable with a
+%         % matrix for some reason, need to go column by colum...)
+%         
+%         if i1 == 1
+%             tt = timetable(datetime(date_array,'InputFormat','MM/dd/yyyy HH:mm:ss'),variable_array(:,i1));
+%         else
+%             tt = addvars(tt,variable_array(:,i1));
+%         end
+%         
+%     end
+%     
+%     % remove period from header name and make lower case
+%     %     name_elmnt = (strrep(name_elmnt,'.',''));
+%     
+%     for i1 = 1:numel(headers)
+%         headers{i1} = lower(headers{i1});
+%         headers{i1} = (strrep(headers{i1},'.',''));
+%         headers{i1} = (strrep(headers{i1},'/',''));
+%         headers{i1} = (strrep(headers{i1},' ','_'));
+%     end
+%     
+%     tt.Properties.VariableNames = headers(~headers_remove);
+%     
+%     %     for i1 = 1:numel(units)
+%     %         units{i1} = lower(headers{i1});
+%     %         units{i1} = (strrep(headers{i1},'.',''));
+%     %         units{i1} = (strrep(headers{i1},'/',''));
+%     %     end
+%     tt.Properties.VariableUnits = units(~units_remove);
+%     
+%     
+%     tts{i2} = tt;
+% end
+% 
+% % if there's only one class/element pair, remove cell format
+% if numel(name_classes) == 1
+%     tts = tts{1};
+% end
+% 
+% msg = 'timetable retrieved succesffully';
+% 
+%     function string_out = string_format(string_in)
+%         string_out = lower(string_in);
+%         string_out(1) = upper(string_out(1));
+%     end
+
+
+end
