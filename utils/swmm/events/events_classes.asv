@@ -1,0 +1,13 @@
+ecls = struct();
+
+cfg(1).idx = find([events.class] == 1);
+cfg(1).idx([events.class] == 2);
+cfg(1).idx = [cfg(1).idx]
+
+cfg(1).col = gp.c.green;
+cfg(2).col = gp.c.purple;
+
+
+cfg(1).col = gp.c.green;
+cfg(2).col = gp.c.purple;
+cfg(3).col = gp.c.red;
